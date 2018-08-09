@@ -54,14 +54,14 @@ for i in range(100):
             input = [listMADS[0], listI[0], listI[1], listI[2], listI[3], listI[4], listI[5], listI[6], listI[7],listJ[0], listJ[1], listJ[2], listJ[3], listJ[4], listJ[5], listJ[6], listJ[7]]
             inputSet.append(input)
 
-            # FYI, largest number (10000) ends up as 14 binary digits
+            # FYI, largest number (10000) ends up as 17 binary digits
             if mads == 0:
                 tempStr = str(bin(int(i+1)*int(j+1)))[2:]
                 tempStrList = []
-                if(len(tempStr)<15):
-                    for incre in range(15-len(tempStr)):
+                if(len(tempStr)<18):
+                    for incre in range(18-len(tempStr)):
                         tempStrList.append(0)
-                for q in range(15):
+                for q in range(18):
                     try:
                         tempStrList.append(int(tempStr[q]))
                     except:
@@ -72,10 +72,10 @@ for i in range(100):
             if mads == 1:
                 tempStr = str(bin(int(i+1)+int(j+1)))[2:]
                 tempStrList = []
-                if(len(tempStr)<15):
-                    for incre in range(15-len(tempStr)):
+                if(len(tempStr)<18):
+                    for incre in range(18-len(tempStr)):
                         tempStrList.append(0)
-                for q in range(15):
+                for q in range(18):
                     try:
                         tempStrList.append(int(tempStr[q]))
                     except:
@@ -104,20 +104,24 @@ class neuralNet():
 
         np.random.seed(12)
 
+        self.yes = 0
+
+        self.inputlength = len(trainingInputs[0])
+
         self.synapticWeightsListLayer1 = []
         self.synapticWeightsListLayer2 = []
         self.synapticWeightsListLayer3 = []
         self.outputWeightsList = []
-        self.Layer1 = []
-        self.Layer2 = []
-        self.Layer3 = []
-        self.LayerOutput = []
+        self.Layer1 = np.zeros(50,)
+        self.Layer2 = np.zeros(50,)
+        self.Layer3 = np.zeros(50,)
+        self.LayerOutput = np.zeros(18,)
 
         for i in range(numberOfLayer1):
 
             # Gives one hidden layer node its weights
 
-            self.synapticWeightsListLayer1.append((2 * np.random.random((18,1)) - 1))
+            self.synapticWeightsListLayer1.append((2 * np.random.random((self.inputlength,1)) - 1))
 
         for j in range(numberOfLayer2):
 
@@ -142,7 +146,18 @@ class neuralNet():
         return (x * (1-x))
 
     def train(self, inputs, trainingOutputs, iterations):
-        pass
+        for iteration in range(iterations):
+            predictedOutputs = self.think(inputs)
+            errorList = []
+            for eleme in range(len(trainingOutputs)):
+                errorSingle = []
+                errorSingleList = []
+                for i in range(len(trainingOutputs[eleme])):
+                    errorSingle = trainingOutputs[eleme][i] - predictedOutputs[eleme][i]
+                    errorSingleList.append(errorSingle)
+                errorList.append(errorSingleList)
+
+            # TODO: Use error list to create adjustments for the weights
 
         #-------------------------------------------
         #
@@ -150,20 +165,45 @@ class neuralNet():
         #
         #-------------------------------------------
 
+    def think(self, inputs):
 
-    def layerIter(self, input, weightsList):
-        # TODO: make the layers iterate, make the inputs iterate, figure it out future me
+        #-----------------------------
+        # Returns predicted outputs
+        #-----------------------------
 
-    def neuronIter(self, input, layerWeightsList, layersize, layer):
+        thinkOutputList = []
+        tempList = []
+        tempList2 = []
+        for i in range(len(inputs)):
+            self.yes = i
+            elem = inputs[i]
+            thinkOutput = self.__layerIter(elem)[3]
+            tempList.extend(thinkOutput)
+            first = 0 + 18 * i
+            last = 17 + 18 * i
+            tempList2 = tempList[first:last]
+            thinkOutputList.append(tempList2)
+        return thinkOutputList
+
+    def __layerIter(self, input):
+        storeInput = input
+        for elem in range(len(self.layerOverseerList)):
+            self.layerOverseerList[elem] = self.__neuronIter(input, self.weightsOverseerList[elem], self.layerSizeOverseerList[elem], self.layerOverseerList[elem])
+            input = self.layerOverseerList[elem]
+        return self.layerOverseerList
+
+    def __neuronIter(self, input, layerWeightsList, layersize, layer):
         for iter in range(layersize):
-            layer.append(neuronThink(input, layerWeightsList[iter]))
+            layer[iter] = (self.__neuronThink(input, layerWeightsList[iter]))
         return layer
 
-    def neuronThink(self, input, weights):
+    def __neuronThink(self, input, weights):
 
         # one neuron
-        dotResult = np.dot(inputs, weights)
-        dotResult = dotResult/18
+
+        dotResult = np.dot(input, weights)
+        if self.yes == 1:
+            dotResult += 18
         return self.__sigmoid(dotResult)
 
         #-------------------------------------------
@@ -185,4 +225,4 @@ class neuralNet():
 #
 # for help
 
-neuralNetwork = neuralNet(50,50,50,15)
+neuralNetwork = neuralNet(50,50,50,18,[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],[]).train([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], 1)
