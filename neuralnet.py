@@ -147,6 +147,5 @@ class neuralNet():
 # https://www.ibu.edu.ba/assets/userfiles/it/2012/eee-ANN-5.pdf
 #
 # for help
-neuralNetwork = neuralNet(50,50,50,15)
 
-print(inputSet)
+neuralNetwork = neuralNet(50,50,50,15)
