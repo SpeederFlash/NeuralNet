@@ -85,7 +85,12 @@ for i in range(100):
 
                 outputSet.append(tempStrList)
 
-shuffle(inputSet)
+temp = list(zip(inputSet, outputSet))
+
+shuffle(temp)
+
+inputSet, outputSet = zip(*temp)
+
 inputSet = np.array(inputSet)
 outputSet = np.array(outputSet).T
 
@@ -95,7 +100,7 @@ outputSet = np.array(outputSet).T
 #
 
 class neuralNet():
-    def __init__(self, numberOfLayer1, numberOfLayer2, numberOfLayer3, outputWeights):
+    def __init__(self, numberOfLayer1, numberOfLayer2, numberOfLayer3, outputWeightsSize, trainingInputs, correctOutputs):
 
         np.random.seed(12)
 
@@ -103,6 +108,10 @@ class neuralNet():
         self.synapticWeightsListLayer2 = []
         self.synapticWeightsListLayer3 = []
         self.outputWeightsList = []
+        self.Layer1 = []
+        self.Layer2 = []
+        self.Layer3 = []
+        self.LayerOutput = []
 
         for i in range(numberOfLayer1):
 
@@ -118,14 +127,16 @@ class neuralNet():
 
             self.synapticWeightsListLayer3.append((2 * np.random.random((numberOfLayer2,1)) - 1))
 
-        for y in range(outputWeights):
+        for y in range(outputWeightsSize):
 
             self.outputWeightsList.append((2 * np.random.random((numberOfLayer3,1)) - 1))
 
-
+        self.weightsOverseerList = [self.synapticWeightsListLayer1, self.synapticWeightsListLayer2, self.synapticWeightsListLayer3, self.outputWeightsList]
+        self.layerOverseerList = [self.Layer1, self.Layer2, self.Layer3, self.LayerOutput]
+        self.layerSizeOverseerList = [numberOfLayer1, numberOfLayer2, numberOfLayer3, outputWeightsSize]
 
     def __sigmoid(self, x):
-        return (1/(1 - np.exp(x)))
+        return (1/(1 + np.exp(-x)))
 
     def __sigmoidDeriv(self, x):
         return (x * (1-x))
@@ -133,8 +144,34 @@ class neuralNet():
     def train(self, inputs, trainingOutputs, iterations):
         pass
 
-    def think(self, inputs):
-        pass
+        #-------------------------------------------
+        #
+        # NeuronThinking below
+        #
+        #-------------------------------------------
+
+
+    def layerIter(self, input, weightsList):
+        # TODO: make the layers iterate, make the inputs iterate, figure it out future me
+
+    def neuronIter(self, input, layerWeightsList, layersize, layer):
+        for iter in range(layersize):
+            layer.append(neuronThink(input, layerWeightsList[iter]))
+        return layer
+
+    def neuronThink(self, input, weights):
+
+        # one neuron
+        dotResult = np.dot(inputs, weights)
+        dotResult = dotResult/18
+        return self.__sigmoid(dotResult)
+
+        #-------------------------------------------
+        #
+        # Adjustments below
+        #
+        #-------------------------------------------
+
 
 # Initialize Network
 
