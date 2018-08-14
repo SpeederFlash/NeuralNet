@@ -208,7 +208,7 @@ class neuralNet():
 
             print(self.Layer1Delts)
 
-            # TODO: Use error list to create adjustments for the weights
+            # TODO: Use error list to create adjustments for the weights from deltas
 
         #-------------------------------------------
         #
