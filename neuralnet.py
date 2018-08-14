@@ -104,8 +104,6 @@ class neuralNet():
 
         np.random.seed(12)
 
-        self.yes = 0
-
         self.inputlength = len(trainingInputs[0])
 
         self.synapticWeightsListLayer1 = []
@@ -139,6 +137,7 @@ class neuralNet():
         self.layerOverseerList = [self.Layer1, self.Layer2, self.Layer3, self.LayerOutput]
         self.layerSizeOverseerList = [numberOfLayer1, numberOfLayer2, numberOfLayer3, outputWeightsSize]
 
+
     def __sigmoid(self, x):
         return (1/(1 + np.exp(-x)))
 
@@ -147,6 +146,8 @@ class neuralNet():
 
     def train(self, inputs, trainingOutputs, iterations):
         for iteration in range(iterations):
+            basis = [0.] * len(trainingOutputs[0])
+            outputDeltas = np.array(basis)
             predictedOutputs = self.think(inputs)
             errorList = []
             for eleme in range(len(trainingOutputs)):
@@ -156,6 +157,56 @@ class neuralNet():
                     errorSingle = trainingOutputs[eleme][i] - predictedOutputs[eleme][i]
                     errorSingleList.append(errorSingle)
                 errorList.append(errorSingleList)
+
+            ErrorList = np.array(errorList)
+
+            for index in range(len(trainingOutputs)):
+
+                output = trainingOutputs[index]
+                sigDerivOfPredOut = self.__sigmoidDeriv(predictedOutputs[index])
+                input = inputs[index]
+                Delta = ErrorList[index]
+                for j in range(len(Delta)):
+                    add = Delta[j]
+                    current = outputDeltas[j]
+                    total = current + add
+                    outputDeltas[j] = total
+
+            for Layer in range(3):
+                if Layer == 0:
+                    nodeDeltas = [0.] * len(self.outputWeightsList[0])
+                elif Layer == 1:
+                    nodeDeltas = [0.] * len(self.synapticWeightsListLayer3[0])
+                elif Layer == 2:
+                    nodeDeltas = [0.] * len(self.synapticWeightsListLayer2[0])
+
+                nodeDeltas = np.array(nodeDeltas)
+
+                if Layer == 0:
+                    for j in range(len(outputDeltas)):
+                        delta = outputDeltas[j]
+                        for a in range(len(nodeDeltas)):
+                            nodeDeltas[a] += delta * self.outputWeightsList[j][a]
+                elif Layer == 1:
+                    for j in range(len(self.Layer3Delts)):
+                        delta = self.Layer3Delts[j]
+                        for a in range(len(nodeDeltas)):
+                            nodeDeltas[a] += delta * self.synapticWeightsListLayer3[j][a]
+                elif Layer == 2:
+                    for j in range(len(self.Layer2Delts)):
+                        delta = self.Layer2Delts[j]
+                        for a in range(len(nodeDeltas)):
+                            nodeDeltas[a] += delta * self.synapticWeightsListLayer2[j][a]
+
+
+                if Layer == 0:
+                    self.Layer3Delts = nodeDeltas
+                elif Layer == 1:
+                    self.Layer2Delts = nodeDeltas
+                elif Layer == 2:
+                    self.Layer1Delts = nodeDeltas
+
+            print(self.Layer1Delts)
 
             # TODO: Use error list to create adjustments for the weights
 
@@ -175,7 +226,6 @@ class neuralNet():
         tempList = []
         tempList2 = []
         for i in range(len(inputs)):
-            self.yes = i
             elem = inputs[i]
             thinkOutput = self.__layerIter(elem)[3]
             tempList.extend(thinkOutput)
@@ -183,7 +233,7 @@ class neuralNet():
             last = 17 + 18 * i
             tempList2 = tempList[first:last]
             thinkOutputList.append(tempList2)
-        return thinkOutputList
+        return np.array(thinkOutputList)
 
     def __layerIter(self, input):
         storeInput = input
@@ -202,8 +252,6 @@ class neuralNet():
         # one neuron
 
         dotResult = np.dot(input, weights)
-        if self.yes == 1:
-            dotResult += 18
         return self.__sigmoid(dotResult)
 
         #-------------------------------------------
@@ -225,4 +273,4 @@ class neuralNet():
 #
 # for help
 
-neuralNetwork = neuralNet(50,50,50,18,[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],[]).train([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], 1)
+neuralNetwork = neuralNet(50,50,50,18,[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],[]).train(np.array([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),np.array([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]), 1)
