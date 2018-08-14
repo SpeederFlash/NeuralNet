@@ -163,9 +163,9 @@ class neuralNet():
             for index in range(len(trainingOutputs)):
 
                 output = trainingOutputs[index]
-                sigDerivOfPredOut = self.__sigmoidDeriv(predictedOutputs[index])
                 input = inputs[index]
                 Delta = ErrorList[index]
+                sigDerivOfPredOut = self.__sigmoidDeriv(predictedOutputs[index])
                 for j in range(len(Delta)):
                     add = Delta[j]
                     current = outputDeltas[j]
@@ -206,7 +206,30 @@ class neuralNet():
                 elif Layer == 2:
                     self.Layer1Delts = nodeDeltas
 
-            print(self.Layer1Delts)
+            sigDerivOfPredLayer3 = self.__sigmoidDeriv(self.layerOverseerList[2])
+            sigDerivOfPredLayer2 = self.__sigmoidDeriv(self.layerOverseerList[1])
+            sigDerivOfPredLayer1 = self.__sigmoidDeriv(self.layerOverseerList[0])
+            adjustmentsLayer3 = self.Layer3Delts * sigDerivOfPredLayer3
+            adjustmentsLayer2 = self.Layer2Delts * sigDerivOfPredLayer2
+            adjustmentsLayer1 = self.Layer1Delts * sigDerivOfPredLayer1
+            adjustmentsLayerOutputTemp = outputDeltas * sigDerivOfPredOut
+
+            adjustmentsLayerOutput = [0]
+            adjustmentsLayerOutput.extend(adjustmentsLayerOutputTemp)
+
+            for a in range(len(self.synapticWeightsListLayer1)):
+                self.synapticWeightsListLayer1[a] += adjustmentsLayer1[a]
+
+            for b in range(len(self.synapticWeightsListLayer2)):
+                self.synapticWeightsListLayer2[b] += adjustmentsLayer1[b]
+
+            for c in range(len(self.synapticWeightsListLayer3)):
+                self.synapticWeightsListLayer3[c] += adjustmentsLayer1[c]
+
+            for d in range(len(self.outputWeightsList)):
+                self.outputWeightsList[d] += adjustmentsLayerOutput[d]
+
+            print(predictedOutputs)
 
             # TODO: Use error list to create adjustments for the weights from deltas
 
@@ -273,4 +296,4 @@ class neuralNet():
 #
 # for help
 
-neuralNetwork = neuralNet(50,50,50,18,[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],[]).train(np.array([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),np.array([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]), 1)
+neuralNetwork = neuralNet(50,50,50,18,[[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],[]).train(np.array([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),np.array([[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]), 200)
